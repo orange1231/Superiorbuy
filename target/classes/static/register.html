@@ -1,0 +1,197 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+	<title>用户注册</title>
+	<link rel="stylesheet" href="css/base.css" />
+	<link rel="stylesheet" href="css/global.css" />
+	<link rel="stylesheet" href="css/login-register.css" />
+	<style  rel="stylesheet"  type="text/css">
+	#code:hover{
+	cursor:pointer;
+	}
+	</style>
+	<script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript">
+        //设置获取验证码按钮的倒计时时间
+        var countdown=60;
+
+        function settime(val) {
+
+            if (countdown == 0) {
+                val.style.width=70+"px";
+                val.removeAttribute("disabled");
+                val.value="获取验证码";
+                countdown = 60;
+            } else {
+                if(countdown<10){
+                    val.style.width=74+"px";
+				}else{
+                    val.style.width=82+"px";
+				}
+                val.setAttribute("disabled", true);
+                val.value="重新发送(" + countdown + ")";
+                countdown--;
+                setTimeout(function() {
+                    settime(val)
+				},1000)
+            }
+        }
+
+       function getCode(val){
+            var phone=$("#su_mobile").val();
+            $.post("code",{"phone":phone},function () {
+			});
+           settime(val);
+	   }
+
+        $(function () {
+
+
+            // 判断用户是否存在
+            $("#su_account").blur(function () {
+                var su_account=$(this).val();
+                $.post('Su_account',{"su_account":su_account},function (rs) {
+                    if(rs){
+                        $("#Is_Exists_User").text("	");
+                    }else {
+
+                        $("#Is_Exists_User").text("该用户已存在");
+                    }
+                })
+            });
+            // 判断密码是否一致
+            $("#repwd").blur(function () {
+                //密码
+                var su_password=$("#su_password").val();
+                //确认密码
+                var repwd=$(this).val();
+                if(su_password==repwd){
+                    $("#Is_repwd").text(" ");
+                }else {
+                    $("#Is_repwd").text("密码不一致，请重新输入");
+                }
+            });
+        });
+
+	</script>
+	
+</head>
+
+<body>
+<div class="header wrap1000">
+	<a href=""><img src="images/logo.png" alt="" /></a>
+</div>
+
+<div class="main">
+	<div class="login-form fr">
+		<div class="form-hd">
+			<h3>用户注册</h3>
+		</div>
+		<div class="form-bd">
+			<form action="Register" method="POST">
+				<dl>
+					<dt>用户名</dt>
+					<dd>
+						<input id="su_account" th:value="${user.su_account}" type="text" name="su_account" class="text" required="" placeholder="用户名长度为3~12" minlength="3" maxlength="12"/>
+
+					</dd>
+                    <dd id="Is_Exists_User" style="color: red;position: relative;top:10px;left:80px;"></dd>
+				</dl>
+				<dl>
+					<dt>密码</dt>
+					<dd><input id="su_password"  th:value="${user.su_password}" type="password" name="su_password" class="text" required="" placeholder="密码长度为6~20" minlength="6" maxlength="20"/>
+					</dd>
+                    <dd id="pwdSize" style="color: red;position: relative;top:10px;left:80px;"></dd>
+				</dl>
+				<dl>
+					<dt>确认密码</dt>
+					<dd>
+						<input id="repwd"  type="password"  th:value="${user.su_password}"  name="repwd" class="text" required="" placeholder="请输入确认密码" minlength="6"/>
+
+					</dd>
+                    <dd id="Is_repwd" style="color: red;position: relative;top:10px;left:80px;"></dd>
+				</dl>
+				<dl>
+					<dt>性别</dt>
+					<dd style="position:relative;left:20px;top:6px;">
+						<input type="radio" name="su_sex" value="男" th:checked="${user.su_sex eq '男'}"  formnovalidate=""/>&nbsp;男
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<input type="radio" name="su_sex" value="女" th:checked="${user.su_sex eq '女'}" formnovalidate=""/>&nbsp;女
+					</dd>
+				</dl>
+				<dl>
+					<dt>邮箱</dt>
+					<dd><input id="email" th:value="${user.su_email}"  type="email" name="su_email" class="text" placeholder="1259839802@qq.com" pattern="/^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,4}$/"/></dd>
+				</dl>
+				<dl>
+					<dt>手机号</dt>
+					<dd>
+						<input id="su_mobile" th:value="${user.su_mobile}" style="width:150px;"  name="su_mobile" class="text" pattern="(^(\d{3,4}-)?\d{7,8})$|^(13|15|18|14)\d{9}$" placeholder="telephone" maxlength="11" minlength="11" />
+						<input type="bottom" style="width:70px;font-size:12px;background-color:blue;color:white;padding:5px;border:none;" id="code" value="获取验证码"  onclick="getCode(this)">
+					</dd>
+				</dl>
+				<dl>
+					<dt>验证码</dt>
+					<dd><input type="text" name="phoneCode" id="phoneCode" class="text" placeholder="请输入验证码"/>
+
+					</dd>
+                    <dd id="codemess" style="color: red" th:text="${codemess}"></dd>
+
+				</dl>
+				<dl>
+					<dt>&nbsp;</dt>
+					<dd><input type="submit" value="立即注册" class="submit"/>
+						<input type= "checkbox" checked="checked"/>阅读并同意
+						<a href="" class="forget">服务协议</a>
+					</dd>
+				</dl>
+			</form>
+	<script>
+        email.oninvalid=function(){
+            email.setCustomValidity("邮箱格式不正确，请输入正确的格式");
+        };
+        su_password.oninvalid=function(){
+            su_password.setCustomValidity("密码长度为6~20");
+        };
+        su_account.oninvalid=function(){
+            su_account.setCustomValidity("用户名长度为3~12");
+		};
+        su_mobile.oninvalid=function(){
+            su_mobile.setCustomValidity("请输入正确的手机号码");
+        };
+	</script>
+
+		</div>
+		<div class="form-ft">
+
+		</div>
+	</div>
+
+	<div class="login-form-left fl">
+		<dl class="func clearfix">
+			<dt>注册之后您可以</dt>
+			<dd class="ico05"><i></i>购买商品支付订单</dd>
+			<dd class="ico01"><i></i>申请开店销售商品</dd>
+			<dd class="ico03"><i></i>空间好友推送分享</dd>
+			<dd class="ico02"><i></i>收藏商品关注店铺</dd>
+			<dd class="ico06"><i></i>商品资讯服务评价</dd>
+			<dd class="ico04"><i></i>安全交易诚信无忧</dd>
+		</dl>
+
+		<div class="if">
+			<h2>如果您是本站用户</h2>
+			<p>我已经注册过账号，立即 <a href="login.html" class="register">登录</a> 或是 <a href="" class="findpwd">找回密码？</a></p>
+		</div>
+	</div>
+</div>
+
+<div class="footer clear wrap1000">
+	<p> <a href="">首页</a> | <a href="">招聘英才</a> | <a href="">广告合作</a> | <a href="">关于ShopCZ</a> | <a href="">联系我们</a></p>
+	<p>Copyright 2004-2013 itcast Inc.,All rights reserved.</p>
+</div>
+
+
+</body>
+</html>

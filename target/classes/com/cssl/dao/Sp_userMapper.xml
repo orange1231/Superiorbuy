@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cssl.dao.Sp_userMapper">
+    <!--登录-->
+    <select id="Login" resultType="Sp_user">
+        SELECT * FROM sp_user WHERE su_account=#{su_account} AND su_password=#{su_password};
+    </select>
+    <!--注册-->
+    <insert id="Register" keyColumn="su_id" keyProperty="su_id">
+        INSERT INTO sp_user(su_account,su_password,su_sex,su_email,su_mobile)
+        VALUES(#{su_account},#{su_password},#{su_sex},#{su_email},#{su_mobile})
+    </insert>
+    <!--判断用户是否存在-->
+    <select id="Is_Exists_User" resultType="int">
+        SELECT COUNT(1) FROM sp_user WHERE su_account=#{su_account}
+    </select>
+
+    <!--登录 手机号登录-->
+    <select id="Login1" resultType="Sp_user">
+        SELECT * FROM sp_user WHERE su_mobile=#{su_account} AND su_password=#{su_password};
+    </select>
+
+    <!--登录 电子邮件登录-->
+    <select id="Login2" resultType="Sp_user">
+        SELECT * FROM sp_user WHERE  su_email=#{su_account} AND su_password=#{su_password};
+    </select>
+
+    <!--商品分类-根据商品类别id-->
+    <select id="selectBySpc_id" resultType="Sp_product">
+         SELECT * FROM sp_product s2 INNER JOIN sp_product_category s1 ON
+            s1.spc_id=s2.spc_file_id WHERE s1.spc_id=#{spc_id} limit 9
+    </select>
+
+    <!--零食  因为零食子类较多，只取九类就好了，所以单独写了个方法-->
+    <select id="findls" resultType="Sp_product">
+         SELECT * FROM sp_product s2 INNER JOIN sp_product_category s1 ON
+            s1.spc_id=s2.spc_file_id WHERE s1.spc_id=13 LIMIT 9
+    </select>
+
+    <!--所有二级分类名称-->
+    <select id="selectSpc_name" resultType="Sp_product_category">
+        SELECT * FROM sp_product_category WHERE spc_parent_id=#{spc_parent_id}
+    </select>
+
+    <!--图片显示-->
+    <select id="selectCenter" resultType="Sp_product">
+        SELECT * FROM sp_product s WHERE s.spc_file_id BETWEEN #{s1} AND #{s2} LIMIT 6;
+    </select>
+
+    <!--右边的商品排行-->
+    <select id="selectRank" resultType="Sp_product">
+        SELECT * FROM sp_product s WHERE  spc_file_id BETWEEN #{sell1} AND #{sell2} ORDER BY s.sp_sell DESC LIMIT 5;
+    </select>
+    <!--特别推荐：每次随机挑选四个商品-->
+    <select id="Special_Recommendation" resultType="sp_product">
+        SELECT * FROM sp_product  ORDER BY  RAND() LIMIT 4
+    </select>
+    <!--商品热门：根据销量-->
+    <select id="Commodity_Hot" resultType="sp_product">
+        SELECT * FROM sp_product ORDER BY sp_sell DESC LIMIT 4
+    </select>
+    <!--新品上架：根据上架时间-->
+    <select id="New_Product" resultType="sp_product">
+        SELECT * FROM sp_product ORDER BY sp_time DESC LIMIT 4
+    </select>
+    <!--商品详情-->
+    <select id="Commodity_Details" resultType="sp_product">
+        SELECT * FROM sp_product p LEFT JOIN sp_comments c ON p.`sp_id`=c.`sp_id` LEFT JOIN sp_freight f ON p.`sp_id`=f.`sp_id` WHERE p.sp_id=#{sp_id}
+    </select>
+    <!--小图片（图片介绍）-->
+    <select id="Picture_Details" resultType="sp_product_picture">
+        SELECT * FROM sp_product_picture WHERE sp_id=#{sp_id}
+    </select>
+    <!--查询评论条数-->
+    <select id="Sc_Concent_Count" resultType="string">
+        SELECT COUNT(sc_id)sc_concent_count FROM sp_comments WHERE sp_id=#{sp_id } GROUP BY sp_id
+    </select>
+    <!--查询运费-->
+    <select id="Sel_Sp_Freight" resultType="sp_freight">
+        SELECT * FROM sp_freight WHERE sp_id=#{sp_id}
+    </select>
+    <!--根据商品查询商品评价-->
+    <select id="Sel_Sp_Comments" resultType="sp_user">
+        SELECT * FROM sp_comments c LEFT JOIN sp_user u ON c.su_id=u.su_id WHERE sp_id=#{sp_id}
+    </select>
+    <!--当前位置-->
+    <select id="Current_Location" resultType="sp_product_category">
+        SELECT * FROM sp_product p LEFT JOIN sp_product_category pc ON p.spc_id=pc.spc_id where sp_id=#{sp.id}
+    </select>
+    <!--获取商品子类id-->
+    <select id="Get_Subclass" resultType="sp_product_category">
+        SELECT * FROM sp_product_category WHERE spc_id=#{spc_file_id}
+    </select>
+
+
+</mapper>
