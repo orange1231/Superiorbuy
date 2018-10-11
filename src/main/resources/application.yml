@@ -1,0 +1,36 @@
+server:
+  servlet:
+    context-path: /Mall
+
+mybatis:
+  type-aliases-package: com.cssl.pojo
+  mapper-locations: classpath:com/cssl/dao/*.xml
+  configuration:
+    auto-mapping-behavior: full
+    use-generated-keys: true
+
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  page-size-zero: true
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://47.94.238.142:3306/mall
+    username: root
+    password: yanghe6677
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm
+    time-zone: GMT+8
+
+#thymeleaf start
+  thymeleaf:
+    encoding: UTF-8
+    #开发时关闭缓存,不然没法看到实时页面
+    cache: false
+    prefix: classpath:/static/
+    suffix: .html
+#thymeleaf end
+
